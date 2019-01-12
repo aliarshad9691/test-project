@@ -1,0 +1,12 @@
+@import "../../../../scss/veriables";
+
+:host {
+  margin: 5px 0;
+  display: block;
+  cursor: pointer;
+
+  mat-card {
+    border-left: 8px solid #f00;
+    color: $text-color;
+  }
+}
