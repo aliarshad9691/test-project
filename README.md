@@ -3,7 +3,7 @@
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.1.4.
 
 ## Demo
-http://vqode-cdn.s3-website-us-east-1.amazonaws.com/test/
+http://vqode-cdn.s3-website-us-east-1.amazonaws.com/test2/
 
 ## Development server
 

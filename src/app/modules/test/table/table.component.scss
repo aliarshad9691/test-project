@@ -1,22 +1,8 @@
 :host {
-  .btnHolder {
-    vertical-align: middle;
-    line-height: 55px;
+  button, .table {
+    margin-top: 20px;
   }
-
-  table {
-    width: 100%;
-    .tabelContent {
-      cursor: pointer;
-    }
-  }
-
-  .mat-form-field {
-    font-size: 14px;
-    width: 100%;
-  }
-
-  td, th {
-    width: 25%;
+  .fixHeight {
+    height: 58px;
   }
 }

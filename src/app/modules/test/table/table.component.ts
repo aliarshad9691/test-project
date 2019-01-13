@@ -1,108 +1,90 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {MatDialog, MatPaginator, MatSort, MatTableDataSource} from '@angular/material';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Data} from '../../shared/data.interface';
 import {DataService} from '../../shared/data.service';
-import {AddComponent} from '../add/add.component';
+import {ActivatedRoute, Params, Router} from '@angular/router';
+import {NgForm} from '@angular/forms';
 
 @Component({
     selector: 'app-table',
     templateUrl: './table.component.html',
     styleUrls: ['./table.component.scss']
 })
-export class TableComponent implements OnInit, OnDestroy {
-    displayedColumns: string[] = ['Id', 'Title', 'Color', 'Delete'];
-    dataSource: MatTableDataSource<Data>;
-    selectedRecord: Data;
+export class TableComponent implements OnInit {
+    // Initializing object.
+    data: Data = {
+        id: null,
+        title: '',
+        text: '',
+        color: ''
+    };
     subscription;
-    addMode = true;
+    editMode = false;
+    @ViewChild('form') form: NgForm;
 
-    @ViewChild(MatPaginator) paginator: MatPaginator;
-    @ViewChild(MatSort) sort: MatSort;
-
-    constructor(private dataService: DataService, public dialog: MatDialog) {
-        this.dataSource = new MatTableDataSource([]);
+    constructor(private dataService: DataService,
+                private router: Router,
+                private activatedRoute: ActivatedRoute) {
     }
 
     ngOnInit() {
-        // Setting up pagination and sorting.
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-
+        this.activatedRoute.params
+            .subscribe(
+                (params: Params) => {
+                    if (params.id) {
+                        // Getting data by id.
+                        this.getData(params.id);
+                        // Setting component mode to edit.
+                        this.editMode = true;
+                    }
+                }
+            );
         // Lets fetch data from dataService.
-        this.getData();
     }
 
-    ngOnDestroy() {
-        // As we never call complete on this subject
-        // we need to manually unsubscribe it.
-        this.subscription.unsubscribe();
-    }
-
-    getData() {
-        this.dataService.getData().subscribe((data: Data[]) => {
+    getData(id) {
+        this.dataService.getById(id).subscribe((data: Data) => {
             // Data recieved.
-            this.dataSource.data = data;
+            // Making a copy.
+            this.data = Object.assign({}, data);
         }, err => {
             // Error occured while getting data
             alert('Error occured while getting data');
         });
-
-        // Subscribing to data update events.
-        this.subscription = this.dataService.updateNotification.subscribe((data: Data[]) => {
-            this.dataSource.data = data;
-        });
     }
 
-    applyFilter(filterValue: string) {
-        // Applying filteration on records.
-        this.dataSource.filter = filterValue.trim().toLowerCase();
-
-        if (this.dataSource.paginator) {
-            this.dataSource.paginator.firstPage();
+    async addOrUpdateData() {
+        // All fields are required.
+        if (this.form.valid) {
+            if (this.editMode) {
+                // Update record
+                this.dataService.update(this.data);
+            } else {
+                try {
+                    const found = await this.dataService.getById(this.data.id).toPromise();
+                    alert('Duplicate id not allowed.');
+                } catch (e) {
+                    // If getById fail, add new record.
+                    // Add record
+                    this.dataService.add(this.data);
+                    // Navigate to URL.
+                    this.router.navigate(['/', this.data.id]);
+                }
+            }
+        } else {
+            // Alret that all fields are required.
+            // Todo: alert in not very UI friendly, replace with something else.
+            alert('All fields are required');
         }
     }
 
-    addData() {
-        // Setting initial data to '' and setting popup to Add mode
-        this.addMode = true;
-        this.selectedRecord = {
-            id: null,
-            title: '',
-            text: '',
-            color: '',
-        };
-        this.openPopUp();
-    }
+    deleteData() {
+        // Todo: JS confirm is not very UI friendly, replace with something more fancy.
+        const response = confirm('Delete record?');
+        if (response) {
+            this.dataService.delete(this.data);
+            this.router.navigate(['/']);
+        }
 
-    editData(row) {
-        // Setting data to edit and popup mode to edit;
-        this.addMode = false;
-        this.selectedRecord = Object.assign({}, row);
-        this.openPopUp();
-    }
-
-    deleteData(row) {
-        // Todo: A confirmation dialog, before deleting record.
-        this.dataService.delete(row);
-    }
-
-    openPopUp() {
-        // Opening fixed width popup.
-        const dialogRef = this.dialog.open(AddComponent, {
-            width: '250px',
-            data: this.selectedRecord
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-            // If we have result, Adding or updating record.
-            if (result) {
-                if (this.addMode) {
-                    this.dataService.add(result);
-                } else {
-                    this.dataService.update(result);
-                }
-            }
-        });
     }
 
 }

@@ -45,6 +45,40 @@ export class DataService {
         return subject.asObservable();
     }
 
+    getById(id) {
+        id = parseInt(id, 10);
+        // Creating a subject so we can cache data.
+        const subject = new Subject();
+
+        // Lets code in setTimeout, so we can return observable first.
+        setTimeout(async () => {
+            // If data is not initialized, initialize now.
+            if (!this.data) {
+                try {
+                    await this.getData().toPromise();
+                } catch (e) {
+                    subject.error(e);
+                    subject.complete();
+                    return;
+                }
+            }
+
+            // Search in data.
+            const found = this.data.filter(d => d.id === id);
+            if (found.length > 0) {
+                // Send found record.
+                subject.next(found[0]);
+            } else {
+                // Unable to find record by id.
+                subject.error('Not Found');
+            }
+            subject.complete();
+        }, 0);
+
+
+        return subject.asObservable();
+    }
+
     add(data) {
         // Sinple add function.
         if (!this.data) {

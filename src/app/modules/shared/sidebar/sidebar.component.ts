@@ -28,6 +28,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
     getData() {
         this.dataService.getData().subscribe((data: Data[]) => {
             this.data = data;
+            this.data.sort((a, b) => {
+                return (a.id - b.id) ? 1 : -1;
+            });
         }, err => {
             alert('Error fetching data');
         });
@@ -35,6 +38,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
         // Subscribing to data update events.
         this.subscription = this.dataService.updateNotification.subscribe((data: Data[]) => {
             this.data = data;
+            this.data.sort((a, b) => {
+                return (a.id - b.id > 0) ? 1 : -1;
+            });
         });
     }
 
