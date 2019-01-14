@@ -1,6 +1,6 @@
 <form #form="ngForm">
     <div class="row">
-        <div class="col-4 offset-md-8 fixHeight">
+        <div class="col-md-4 offset-md-8 fixHeight">
             <button type="button" class="btn btn-primary btn-block" *ngIf="editMode" [routerLink]="['/']">Add New
             </button>
         </div>
@@ -31,10 +31,13 @@
         <div class="col-12">
             <textarea name="text" class="form-control" [(ngModel)]="data.text" cols="30" rows="5"></textarea>
         </div>
-        <div class="col-2" [class.offset-md-8]="editMode" [class.offset-md-10]="!editMode">
-            <button type="button" class="btn btn-success btn-block" (click)="addOrUpdateData()">{{editMode ? 'Update' : 'Add'}}</button>
+        <div class="col-md-4 col-lg-2" [class.offset-md-4]="editMode" [class.offset-lg-8]="editMode"
+             [class.offset-lg-10]="!editMode" [class.offset-lg-8]="!editMode">
+            <button type="button" class="btn btn-success btn-block" (click)="addOrUpdateData()">{{editMode ? 'Update' :
+                'Add'}}
+            </button>
         </div>
-        <div class="col-2" *ngIf="editMode">
+        <div class="col-md-4 col-lg-2" *ngIf="editMode">
             <button type="button" class="btn btn-danger btn-block" (click)="deleteData()">Delete</button>
         </div>
     </div>
